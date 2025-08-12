@@ -1,53 +1,43 @@
-package com.example.hs.config;
+package com.example.hs.entity;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.core.userdetails.MapReactiveUserDetailsService;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
-import org.springframework.security.web.SecurityFilterChain;
+import jakarta.persistence.*;
+import lombok.*;
+import java.time.Instant;
 
-@Configuration
-@EnableMethodSecurity
-public class SecurityConfig {
+@Entity
+@Table(name = "patients")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class Patient {
 
-  @Bean
-  public InMemoryUserDetailsManager userDetailsService() {
-    UserDetails admin = User.withDefaultPasswordEncoder()
-            .username("admin")
-            .password("adminpass")
-            .roles("ADMIN")
-            .build();
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    UserDetails doctor = User.withDefaultPasswordEncoder()
-            .username("doc")
-            .password("docpass")
-            .roles("DOCTOR")
-            .build();
+  @Column(nullable = false)
+  private String firstName;
 
-    UserDetails receptionist = User.withDefaultPasswordEncoder()
-            .username("recept")
-            .password("receppass")
-            .roles("RECEPTIONIST")
-            .build();
+  @Column(nullable = false)
+  private String lastName;
 
-    return new InMemoryUserDetailsManager(admin, doctor, receptionist);
-  }
+  @Column(nullable = false, unique = true)
+  private String medicalRecordNumber; // MRN
 
-  @Bean
-  public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-    http
-      .csrf(csrf -> csrf.disable())
-      .authorizeHttpRequests(auth -> auth
-          .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/actuator/**").permitAll()
-          .requestMatchers("/api/**").authenticated()
-          .anyRequest().permitAll()
-      )
-      .httpBasic(Customizer.withDefaults());
-    return http.build();
-  }
+  private String gender;
+
+  private String phone;
+
+  private String email;
+
+  @Column(length = 2000)
+  private String allergies;
+
+  @Column(length = 5000)
+  private String medicalHistory;
+
+  private Instant createdAt;
+  private Instant updatedAt;
 }
